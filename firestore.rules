@@ -1,0 +1,86 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isOwner(uid) {
+      return request.auth.uid == uid;
+    }
+    function isAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Users: own profile read/write; admins read all; role change admin-only
+    match /users/{userId} {
+      allow read:   if isOwner(userId) || isAdmin();
+      allow create: if isSignedIn() && isOwner(userId) &&
+                       request.resource.data.role == 'user';
+      allow update: if (isOwner(userId) &&
+                       request.resource.data.uid == resource.data.uid &&
+                       request.resource.data.role == resource.data.role)
+                    || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Restaurants: public read; admin write
+    match /restaurants/{restaurantId} {
+      allow read:                    if true;
+      allow create, update, delete:  if isAdmin();
+    }
+
+    // Menu Items: public read; admin write
+    match /menuItems/{itemId} {
+      allow read:                    if true;
+      allow create, update, delete:  if isAdmin();
+    }
+
+    // Orders: user reads own; admin reads all; user creates own; admin updates status
+    match /orders/{orderId} {
+      allow read:   if isSignedIn() &&
+                       (isOwner(resource.data.userId) || isAdmin());
+      allow create: if isSignedIn() &&
+                       isOwner(request.resource.data.userId) &&
+                       request.resource.data.status == 'pending' &&
+                       request.resource.data.total is number &&
+                       request.resource.data.total > 0;
+      allow update: if isAdmin() ||
+                    (isSignedIn() &&
+                     isOwner(resource.data.userId) &&
+                     request.resource.data.userId == resource.data.userId &&
+                     request.resource.data.status == 'cancelled' &&
+                     resource.data.status == 'pending' &&
+                     request.resource.data.diff(resource.data).affectedKeys()
+                       .hasOnly(['status', 'updatedAt']));
+      allow delete: if isAdmin();
+    }
+
+    // Reviews: public read; owner creates/deletes; admin deletes
+    match /reviews/{reviewId} {
+      allow read:   if true;
+      allow create: if isSignedIn() &&
+                       isOwner(request.resource.data.userId) &&
+                       request.resource.data.rating is number &&
+                       request.resource.data.rating >= 1 &&
+                       request.resource.data.rating <= 5;
+      allow update: if isOwner(resource.data.userId);
+      allow delete: if isOwner(resource.data.userId) || isAdmin();
+    }
+
+    // Notifications: user reads/updates own; system creates (via server/admin)
+    match /notifications/{notifId} {
+      allow read, update: if isSignedIn() && isOwner(resource.data.userId);
+      allow create:       if isSignedIn() &&
+                           isOwner(request.resource.data.userId);
+      allow delete:       if isSignedIn() && isOwner(resource.data.userId);
+    }
+
+    // Categories: public read; admin write
+    match /categories/{catId} {
+      allow read:                    if true;
+      allow create, update, delete:  if isAdmin();
+    }
+  }
+}

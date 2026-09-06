@@ -1,0 +1,40 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isAdmin() {
+      return isSignedIn() &&
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+    function isUnder5MB() {
+      return request.resource.size < 5 * 1024 * 1024;
+    }
+
+    // User avatars: owner read/write; images only; max 5MB
+    match /avatars/{userId} {
+      allow read:  if true;
+      allow write: if isSignedIn() &&
+                      request.auth.uid == userId &&
+                      isImage() &&
+                      isUnder5MB();
+    }
+
+    // Restaurant images: public read; signed-in write (validated by Firestore rules)
+    match /restaurants/{allPaths=**} {
+      allow read:  if true;
+      allow write: if isAdmin() && isImage() && isUnder5MB();
+    }
+
+    // Menu item images: public read; signed-in write
+    match /menu/{allPaths=**} {
+      allow read:  if true;
+      allow write: if isAdmin() && isImage() && isUnder5MB();
+    }
+  }
+}
