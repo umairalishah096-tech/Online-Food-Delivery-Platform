@@ -26,6 +26,7 @@ export const COLLECTIONS = {
   REVIEWS: "reviews",
   CATEGORIES: "categories",
   NOTIFICATIONS: "notifications",
+  HERO_SLIDES: "heroSlides",
 };
 
 // ─── Generic helpers ─────────────────────────────────────────────────────────

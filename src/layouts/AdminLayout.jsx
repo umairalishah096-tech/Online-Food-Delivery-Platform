@@ -3,7 +3,7 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, ShoppingBag, Store, UtensilsCrossed,
   Users, BarChart3, Settings, LogOut, Menu, X,
-  UtensilsCrossed as Logo, Bell, ChevronRight,
+  UtensilsCrossed as Logo, Bell, ChevronRight, ImageIcon,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import toast from "react-hot-toast";
@@ -15,6 +15,7 @@ const navItems = [
   { to: "/admin/menu", label: "Menu Items", icon: UtensilsCrossed },
   { to: "/admin/users", label: "Users", icon: Users },
   { to: "/admin/analytics", label: "Analytics", icon: BarChart3 },
+  { to: "/admin/hero", label: "Hero Slides", icon: ImageIcon },
   { to: "/admin/settings", label: "Settings", icon: Settings },
 ];
 

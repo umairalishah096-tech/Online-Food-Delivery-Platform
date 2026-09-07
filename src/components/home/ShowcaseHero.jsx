@@ -22,8 +22,10 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { getCollection, COLLECTIONS, orderBy, where } from "../../firebase/firestore";
+import LoadingSpinner from "../ui/LoadingSpinner";
 
-const DISHES = [
+const DEFAULT_DISHES = [
   {
     id: 1,
     rank: "#1 Most Loved Dish",
@@ -199,9 +201,28 @@ export default function ShowcaseHero() {
   const [tab, setTab]               = useState("overview");
   const [liked, setLiked]           = useState(null);
   const [bookmarked, setBookmarked] = useState(false);
+  const [dishes, setDishes]         = useState(DEFAULT_DISHES);
+  const [loading, setLoading]       = useState(true);
   
+  useEffect(() => {
+    const fetchSlides = async () => {
+      try {
+        const data = await getCollection(COLLECTIONS.HERO_SLIDES, [
+          where("active", "==", true),
+          orderBy("order", "asc")
+        ]);
+        setDishes(data.length > 0 ? data : DEFAULT_DISHES);
+      } catch (error) {
+        setDishes(DEFAULT_DISHES);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSlides();
+  }, []);
+
   const heroRef     = useRef(null);
-  const dish        = DISHES[activeIdx];
+  const dish        = dishes[activeIdx] || dishes[0];
 
   const mouseX  = useMotionValue(0);
   const mouseY  = useMotionValue(0);
@@ -228,12 +249,12 @@ export default function ShowcaseHero() {
     setLiked(null);
     setBookmarked(false);
   };
-  const prev = () => go((activeIdx - 1 + DISHES.length) % DISHES.length);
-  const next = () => go((activeIdx + 1) % DISHES.length);
+  const prev = () => go((activeIdx - 1 + dishes.length) % dishes.length);
+  const next = () => go((activeIdx + 1) % dishes.length);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      go((activeIdx + 1) % DISHES.length);
+      go((activeIdx + 1) % dishes.length);
     }, 8000);
     return () => clearInterval(timer);
   }, [activeIdx]);
@@ -432,7 +453,7 @@ export default function ShowcaseHero() {
 
         {/* Progress dots */}
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-          {DISHES.map((_, i) => (
+          {dishes.map((_, i) => (
             <button key={i} onClick={() => go(i)}
               className="h-1.5 rounded-full transition-all duration-300"
               style={{ width: i === activeIdx ? 26 : 6, backgroundColor: i === activeIdx ? dish.accent : "rgba(255,255,255,0.28)" }} />

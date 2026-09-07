@@ -38,6 +38,7 @@ import AdminRestaurants from "./pages/admin/AdminRestaurants";
 import AdminMenuItems from "./pages/admin/AdminMenuItems";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminHeroSlides from "./pages/admin/AdminHeroSlides";
 import AdminSettings from "./pages/admin/AdminSettings";
 
 // Misc
@@ -151,6 +152,7 @@ function App() {
                 <Route path="menu" element={<AdminMenuItems />} />
                 <Route path="users" element={<AdminUsers />} />
                 <Route path="analytics" element={<AdminAnalytics />} />
+                <Route path="hero" element={<AdminHeroSlides />} />
                 <Route path="settings" element={<AdminSettings />} />
               </Route>
 
