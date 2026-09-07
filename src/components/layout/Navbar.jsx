@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
   ShoppingCart, LogOut, LayoutDashboard, Menu, X,
@@ -23,7 +23,6 @@ const NAV_LINKS = [
   { to: "/restaurants",label: "Restaurants" },
   { to: "/about",      label: "About" },
   { to: "/contact",    label: "Contact" },
-  { to: "/food-showcase", label: "🍽 Showcase" },
 ];
 
 export default function Navbar() {

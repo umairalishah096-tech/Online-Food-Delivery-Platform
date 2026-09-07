@@ -1,4 +1,4 @@
-﻿import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
@@ -16,7 +16,7 @@ import Restaurants from "./pages/public/Restaurants";
 import RestaurantDetail from "./pages/public/RestaurantDetail";
 import About from "./pages/public/About";
 import Contact from "./pages/public/Contact";
-import FoodShowcase from "./pages/public/FoodShowcase";
+
 
 // Auth Pages
 import Login from "./pages/auth/Login";
@@ -71,7 +71,7 @@ function App() {
                 <Route path="/restaurant/:id" element={<RestaurantDetail />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
-                <Route path="/food-showcase" element={<FoodShowcase />} />
+
                 <Route path="/cart" element={<Cart />} />
 
                 {/* Protected customer routes */}
